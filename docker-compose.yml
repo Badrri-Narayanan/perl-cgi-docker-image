@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  perl-cgi-app:
+    container_name: perl-cgi-app
+    build: ./
+    volumes:
+      - ./sample_perl_cgi_programs:/usr/local/apache2/htdocs
+    working_dir: /usr/local/apache2/htdocs
+    ports:
+      - "8080:8080"
+    environment:
+      - SAMPLE_ENV_VAR=it_can_be_anything

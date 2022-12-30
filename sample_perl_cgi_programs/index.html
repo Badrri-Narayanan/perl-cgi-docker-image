@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <title>Perl CGI Program</title>
+    </head>
+    <body class="center">
+        <h1>Sample Form</h1>
+        <form action = "/hello.cgi" method="POST">
+            <div style="padding: 10px;">
+                First Name: <input type="text" name="first_name">
+            </div>
+            <br>
+         
+            <div style="padding: 10px;">
+                Last Name: <input type="text" name="last_name">
+            </div>
+            <br/>
+
+            <div style="padding-inline: 190px;">
+                <input type="submit" class="submit-btn" value="Submit">
+            </div>
+        </form>
+
+        <a href="./demo_program.pl">Another demo perl CGI program</a>
+    </body>
+    <style>
+
+        .center{
+            padding: 20px;
+        }
+
+        .submit-btn {
+            background: #4db748;
+            color: #fff;
+            padding: 5px 10px;
+        }
+
+    </style>
+</html>
