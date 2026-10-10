@@ -1,38 +1,51 @@
-<html>
-    <head>
-        <title>Perl CGI Program</title>
-    </head>
-    <body class="center">
-        <h1>Sample Form</h1>
-        <form action = "/hello.cgi" method="POST">
-            <div style="padding: 10px;">
-                First Name: <input type="text" name="first_name">
-            </div>
-            <br>
-         
-            <div style="padding: 10px;">
-                Last Name: <input type="text" name="last_name">
-            </div>
-            <br/>
-
-            <div style="padding-inline: 190px;">
-                <input type="submit" class="submit-btn" value="Submit">
-            </div>
-        </form>
-
-        <a href="./demo_program.pl">Another demo perl CGI program</a>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Perl CGI Program</title>
     <style>
-
-        .center{
+        body {
+            font-family: sans-serif;
             padding: 20px;
+        }
+
+        .field {
+            padding: 10px 0;
+        }
+
+        .field label {
+            display: inline-block;
+            min-width: 7em;
         }
 
         .submit-btn {
             background: #4db748;
             color: #fff;
+            border: none;
             padding: 5px 10px;
+            cursor: pointer;
         }
-
     </style>
+</head>
+<body>
+    <h1>Sample Form</h1>
+    <form action="/hello.cgi" method="POST">
+        <div class="field">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name">
+        </div>
+
+        <div class="field">
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name">
+        </div>
+
+        <div class="field">
+            <input type="submit" class="submit-btn" value="Submit">
+        </div>
+    </form>
+
+    <a href="/demo_program.pl">Another demo Perl CGI program</a>
+</body>
 </html>

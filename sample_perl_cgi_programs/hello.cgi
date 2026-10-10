@@ -1,37 +1,35 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+use CGI ();
 
-local ($buffer, @pairs, $pair, $name, $value, %FORM);
-# Read in text
-$ENV{'REQUEST_METHOD'} =~ tr/a-z/A-Z/;
+# Reject oversized bodies instead of reading whatever Content-Length claims.
+$CGI::POST_MAX        = 10 * 1024;
+$CGI::DISABLE_UPLOADS = 1;
 
-if ($ENV{'REQUEST_METHOD'} eq "POST") {
-   read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'});
-} else {
-   $buffer = $ENV{'QUERY_STRING'};
+my $q = CGI->new;
+
+if (my $error = $q->cgi_error) {
+    print $q->header(-status => $error);
+    exit 0;
 }
 
-# Split information into name/value pairs
-@pairs = split(/&/, $buffer);
+# Everything user-supplied is HTML-escaped before it reaches the page.
+my $first_name = CGI::escapeHTML($q->param('first_name') // '');
+my $last_name  = CGI::escapeHTML($q->param('last_name')  // '');
 
-foreach $pair (@pairs) {
-   ($name, $value) = split(/=/, $pair);
-   $value =~ tr/+/ /;
-   $value =~ s/%(..)/pack("C", hex($1))/eg;
-   $FORM{$name} = $value;
-}
-
-$first_name = $FORM{first_name};
-$last_name  = $FORM{last_name};
-
-print "Content-type:text/html\r\n\r\n";
-print "<html>";
-print "<head>";
-print "<title>The second CGI program</title>";
-print "</head>";
-print "<body>";
-print "<h1>The power of Mod PERL and Apache http server</h1>";
-print "<p>Hello <strong>$first_name $last_name</strong>. Are you liking mod perl?</p>";
-print "</body>";
-print "</html>";
-
-1;
+print $q->header(-type => 'text/html', -charset => 'utf-8');
+print <<"HTML";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>The second CGI program</title>
+</head>
+<body>
+    <h1>The power of mod_perl and Apache httpd</h1>
+    <p>Hello <strong>$first_name $last_name</strong>. Are you liking mod_perl?</p>
+    <p><a href="/">Back to the form</a></p>
+</body>
+</html>
+HTML
