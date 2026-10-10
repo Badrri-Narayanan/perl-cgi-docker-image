@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
+      - name: Lint entrypoint
+        run: shellcheck docker-entrypoint.sh
+
+      - name: Lint Perl scripts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libperl-critic-perl
+          perlcritic --severity 4 sample_perl_cgi_programs/*.cgi sample_perl_cgi_programs/*.pl
+
+  smoke-test:
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start container
+        run: docker compose up -d --build --wait
+
+      - name: Index page is served
+        run: curl -fsS http://localhost:8080/ | grep -q 'Sample Form'
+
+      - name: hello.cgi greets and escapes HTML
+        run: |
+          body=$(curl -fsS -X POST http://localhost:8080/hello.cgi \
+            --data-urlencode 'first_name=<script>x</script>' \
+            --data-urlencode 'last_name=Lovelace')
+          echo "$body" | grep -q '&lt;script&gt;x&lt;/script&gt; Lovelace'
+          ! echo "$body" | grep -q '<script>x</script>'
+
+      - name: demo_program.pl sees container env vars
+        run: curl -fsS http://localhost:8080/demo_program.pl | grep -q 'it_can_be_anything'
+
+      - name: Oversized POST is rejected
+        run: |
+          code=$( (printf 'first_name='; head -c 20000 /dev/zero | tr '\0' a) |
+            curl -s -o /dev/null -w '%{http_code}' -X POST --data-binary @- http://localhost:8080/hello.cgi)
+          test "$code" = 413
+
+      - name: Container logs
+        if: always()
+        run: docker compose logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose down

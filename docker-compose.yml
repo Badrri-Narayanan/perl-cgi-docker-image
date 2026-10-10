@@ -1,13 +1,11 @@
-version: '3.3'
-
 services:
   perl-cgi-app:
-    container_name: perl-cgi-app
-    build: ./
-    volumes:
-      - ./sample_perl_cgi_programs:/usr/local/apache2/htdocs
-    working_dir: /usr/local/apache2/htdocs
+    build: .
+    image: perl-cgi-app:local
     ports:
       - "8080:8080"
+    # Bind-mount the scripts for development so edits show up without a rebuild.
+    volumes:
+      - ./sample_perl_cgi_programs:/var/www/html
     environment:
       - SAMPLE_ENV_VAR=it_can_be_anything
